@@ -1,6 +1,6 @@
 import pygame, sys, time
 from settings import *
-from sprites import BG, Ground, Plane, Obstacle
+from sprites import BG, Ground, Plane, Obstacle, Asteroid
 
 class Game:
 	def __init__(self):
@@ -22,12 +22,18 @@ class Game:
 
 		# sprite setup 
 		BG(self.all_sprites,self.scale_factor)
-		Ground([self.all_sprites,self.collision_sprites],self.scale_factor)
+		Ground([self.all_sprites,self.collision_sprites],self.scale_factor + 0.6)
 		self.plane = Plane(self.all_sprites,self.scale_factor / 5)
+		self.collision_sprites.add(self.plane, *list(filter(lambda sprite: sprite.sprite_type == 'ground' or sprite.sprite_type == 'obstacle' or sprite.sprite_type == 'asteroid', self.all_sprites.sprites())))
+
 
 		# timer
 		self.obstacle_timer = pygame.USEREVENT + 1
 		pygame.time.set_timer(self.obstacle_timer,1400)
+
+		# Asteroids
+		self.asteroid_timer = pygame.USEREVENT + 2 
+		pygame.time.set_timer(self.asteroid_timer, 3000)
 
 		# text
 		self.font = pygame.font.Font('../graphics/font/BD_Cartoon_Shout.ttf',30)
@@ -35,20 +41,24 @@ class Game:
 		self.start_offset = 0
 
 		# menu
-		self.menu_surf = pygame.image.load('../graphics/ui/menu.png').convert_alpha()
+		self.menu_surf = pygame.transform.scale(pygame.image.load('../graphics/ui/clear-menu.png'), (300, 150)).convert_alpha()
 		self.menu_rect = self.menu_surf.get_rect(center = (WINDOW_WIDTH / 2,WINDOW_HEIGHT / 2))
 
 		# music 
 		self.music = pygame.mixer.Sound('../sounds/music.wav')
 		self.music.play(loops = -1)
 
+		
+
+
 	def collisions(self):
 		if pygame.sprite.spritecollide(self.plane,self.collision_sprites,False,pygame.sprite.collide_mask) or self.plane.rect.top <= 0:
 			for sprite in self.collision_sprites.sprites():
-				if sprite.sprite_type == 'obstacle':
+				if sprite.sprite_type == 'obstacle' or sprite.sprite_type == 'asteroid':
 					sprite.kill()
 			self.active = False
 			self.plane.kill()
+	
 
 	def display_score(self):
 		if self.active:
@@ -83,8 +93,10 @@ class Game:
 						self.start_offset = pygame.time.get_ticks()
 
 				if event.type == self.obstacle_timer and self.active:
-					Obstacle([self.all_sprites,self.collision_sprites],self.scale_factor * 1.1)
-			
+					Obstacle([self.all_sprites,self.collision_sprites],self.scale_factor * 2)
+				if event.type == self.asteroid_timer and self.active:
+					Asteroid([self.all_sprites,self.collision_sprites] , self.scale_factor)
+
 			# game logic
 			self.display_surface.fill('black')
 			self.all_sprites.update(dt)

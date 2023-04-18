@@ -18,6 +18,9 @@ class BG(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(topleft = (0,0))
 		self.pos = pygame.math.Vector2(self.rect.topleft)
 
+		self.sprite_type = 'background'
+
+
 	def update(self,dt):
 		self.pos.x -= 300 * dt
 		if self.rect.centerx <= 0:
@@ -70,6 +73,9 @@ class Plane(pygame.sprite.Sprite):
 		# sound
 		self.jump_sound = pygame.mixer.Sound('../sounds/jump.wav')
 		self.jump_sound.set_volume(0.3)
+
+		self.sprite_type = 'plane'
+
 
 	def import_frames(self,scale_factor):
 		self.frames = []
@@ -127,8 +133,82 @@ class Obstacle(pygame.sprite.Sprite):
 		# mask
 		self.mask = pygame.mask.from_surface(self.image)
 
+		self.sprite_type = 'obstacle'
+
+
 	def update(self,dt):
 		self.pos.x -= 400 * dt
 		self.rect.x = round(self.pos.x)
 		if self.rect.right <= -100:
 			self.kill()
+
+# class Asteroid(pygame.sprite.Sprite):
+# 	def __init__(self, sprite_groups, scale_factor):
+# 		super().__init__(sprite_groups)
+# 		self.image = pygame.transform.scale(pygame.image.load('../graphics/obstacles/asteroid.png').convert_alpha(),(int(90*scale_factor),int(90*scale_factor)))
+# 		self.rect = self.image.get_rect(center = (WINDOW_WIDTH, randint(50, WINDOW_HEIGHT - 50)))
+# 		self.sprite_type = 'asteroid'
+
+
+# 	def update(self, dt):
+# 		self.rect.move_ip(-300*dt,0)
+# 		if self.rect.right <= 0:
+# 			self.kill()
+
+# class Asteroid(pygame.sprite.Sprite):
+# 	def __init__(self, groups, scale_factor):
+# 		super().__init__(groups)
+# 		self.image = pygame.image.load('../graphics/obstacles/asteroid.png').convert_alpha()
+# 		self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * scale_factor), int(self.image.get_height() * scale_factor)))
+# 		self.rect = self.image.get_rect(midleft = (WINDOW_WIDTH, randint(int(WINDOW_HEIGHT * 0.25), int(WINDOW_HEIGHT * 0.75))))
+# 		self.mask = pygame.mask.from_surface(self.image)
+# 		self.sprite_type = 'asteroid'
+# 		self.vel = -300 * scale_factor
+	
+# 	def update(self, dt):
+# 		self.rect.x += self.vel * dt
+# 		if self.rect.right < 0:
+# 			self.kill()
+
+class Asteroid(pygame.sprite.Sprite):
+	def __init__(self, groups, scale_factor):
+		super().__init__(groups)
+		self.sprite_type = 'asteroid'
+		self.image = pygame.transform.scale(pygame.image.load('../graphics/obstacles/asteroid.png').convert_alpha(),(int(90*scale_factor),int(90*scale_factor)))
+
+        # Set initial position and velocity
+		self.pos = pygame.math.Vector2(WINDOW_WIDTH, randint(0, WINDOW_HEIGHT))
+		self.vel = pygame.math.Vector2(-300 * scale_factor, 0)
+
+        # Set sprite rect and mask
+		self.rect = self.image.get_rect(center=self.pos)
+		self.mask = pygame.mask.from_surface(self.image)
+	
+	def update(self, dt):
+		self.pos += self.vel * dt
+		self.rect.center = round(self.pos.x), round(self.pos.y)
+		if self.rect.right < 0:
+			self.kill()
+
+# class Asteroid(pygame.sprite.Sprite):
+#     def __init__(self, all_sprites_group, collision_sprites_group, scale_factor):
+#         super().__init__(all_sprites_group, collision_sprites_group)
+#         self.sprite_type = 'asteroid'
+        
+#         # Load and scale the asteroid image
+#         self.image = pygame.image.load('../graphics/obstacles/asteroid.png').convert_alpha()
+#         self.image = pygame.transform.scale(self.image, (int(90 * scale_factor), int(90 * scale_factor)))
+
+#         # Set initial position and velocity
+#         self.pos = pygame.math.Vector2(WINDOW_WIDTH, randint(0, WINDOW_HEIGHT))
+#         self.vel = pygame.math.Vector2(-300 * scale_factor, 0)
+
+#         # Set sprite rect and mask
+#         self.rect = self.image.get_rect(center=self.pos)
+#         self.mask = pygame.mask.from_surface(self.image)
+
+#     def update(self, dt):
+#         self.pos += self.vel * dt
+#         self.rect.center = round(self.pos.x), round(self.pos.y)
+#         if self.rect.right < 0:
+#             self.kill()
